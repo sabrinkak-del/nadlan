@@ -10,6 +10,8 @@ const propertyData = {
         parking: '3 חניות',
         year: '2021',
         direction: 'מערב',
+        city: 'קיסריה',
+        type: 'house',
         description: 'וילה יוקרתית ומעוצבת בקיסריה, בשכונה שקטה ומבוקשת. הנכס כולל סלון מרווח עם חלונות גדולים, מטבח חדיש מאובזר במלואו, 5 חדרי שינה גדולים כולל סוויטת הורים מפנקת עם חדר ארונות ומרפסת פרטית.',
         amenities: [
             'בריכה פרטית מחוממת',
@@ -32,6 +34,8 @@ const propertyData = {
         parking: '2 חניות',
         year: '2023',
         direction: 'מערב (נוף ים)',
+        city: 'תל אביב',
+        type: 'penthouse',
         description: 'פנטהאוז אקסקלוסיבי עם נוף פנורמי עוצר נשימה לים התיכון. דירה חדשה לחלוטין עם גימורים ברמה הגבוהה ביותר, מטבח איטלקי יוקרתי, סלון ענק עם גובה תקרה כפול ומרפסת שמש מדהימה של 80 מ"ר.',
         amenities: [
             'נוף פנורמי לים',
@@ -54,6 +58,8 @@ const propertyData = {
         parking: '2 חניות',
         year: '2020',
         direction: 'דרום',
+        city: 'רמת השרון',
+        type: 'apartment',
         description: 'דירת גן מרווחת ומוארת באזור מבוקש ברמת השרון. הדירה משופצת ברמה גבוהה, כוללת סלון גדול עם יציאה לגינה, מטבח מודרני, 4 חדרי שינה וחדר עבודה. גינה פרטית מעוצבת עם פינת ישיבה ומערכת השקיה אוטומטית.',
         amenities: [
             'גינה פרטית 120 מ"ר',
@@ -239,6 +245,72 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modal.classList.contains('show')) {
             closePropertyModal();
+        }
+    });
+
+    // Search Functionality
+    const searchButton = document.querySelector('.search-box button');
+    const searchInput = document.querySelector('.search-box input[type="text"]');
+    const searchSelect = document.querySelector('.search-box select');
+
+    function searchProperties() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        const propertyType = searchSelect.value;
+
+        // Get all property cards
+        const propertyCards = document.querySelectorAll('.property-card');
+        let visibleCount = 0;
+
+        propertyCards.forEach(card => {
+            const propertyId = card.getAttribute('data-property');
+            const property = propertyData[propertyId];
+
+            if (!property) {
+                card.style.display = 'none';
+                return;
+            }
+
+            // Check if property matches search criteria
+            const matchesCity = !searchTerm || property.city.toLowerCase().includes(searchTerm);
+            const matchesType = !propertyType || property.type === propertyType;
+
+            if (matchesCity && matchesType) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Scroll to properties section
+        document.querySelector('#properties').scrollIntoView({
+            behavior: 'smooth'
+        });
+
+        // Show message if no results
+        const propertiesGrid = document.querySelector('.properties-grid');
+        let noResultsMessage = document.querySelector('.no-results-message');
+
+        if (visibleCount === 0) {
+            if (!noResultsMessage) {
+                noResultsMessage = document.createElement('div');
+                noResultsMessage.className = 'no-results-message';
+                noResultsMessage.style.cssText = 'text-align: center; padding: 2rem; grid-column: 1 / -1; font-size: 1.2rem; color: #64748b;';
+                noResultsMessage.textContent = 'לא נמצאו נכסים התואמים את החיפוש שלך. נסה שוב עם קריטריונים אחרים.';
+                propertiesGrid.appendChild(noResultsMessage);
+            }
+            noResultsMessage.style.display = 'block';
+        } else if (noResultsMessage) {
+            noResultsMessage.style.display = 'none';
+        }
+    }
+
+    searchButton.addEventListener('click', searchProperties);
+
+    // Allow search on Enter key
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchProperties();
         }
     });
 });
